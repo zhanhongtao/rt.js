@@ -49,7 +49,7 @@
     '%': '&#x0025;'
   };
   function escapeHtml(string) {
-    return String(string).replace(/[&<>"'\/]/g, function( key ) {
+    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
       return entityMap[key];
     });
   }
@@ -152,7 +152,7 @@
   // 即: compile 子模板, 生成字符串并放到父模板中.
   // @NOTE: compile 生成函数体.
   function include( string ) {
-    return '(function() { ' + parseTemplate(string) + '})();';
+    return ';(function() { ' + parseTemplate(string) + '})();';
   }
 
   // 支持重写 include 方法.
@@ -178,7 +178,7 @@
 
   // 把模板字符拼接成 JavaScript 函数体.
   function combineTokens(tokens ) {
-    var code = "\nvar output = '';\n";
+    var code = "var output = '';";
     for ( var i = 0, l = tokens.length; i < l; i++ ) {
       var token = tokens[i];
       if ( !token ) continue;
@@ -211,7 +211,7 @@
       }
     }
     code += "return output;";
-    code = "try{ " + code + " }catch(e) { console.log(e); }";
+    console.log( code );
     return code;
   }
 
@@ -275,7 +275,7 @@
     return match;
   };
 
-  rTemplate.version = '0.1';
+  rTemplate.version = '0.2';
   rTemplate.tags = [ "<%", "%>" ];
   rTemplate.cache = {};
 
@@ -285,38 +285,22 @@
     include: include
   };
 
-  // @TODO: 添加 debug.
-  function debugCode( source ) {
-    source = 'rTemplate.debugCode = function( context, utils ) {\n' + source + '\n}';
-    var self = document.getElementsByTagName( 'script' )[0];
-    var script = document.createElement( 'script' );
-    script.src = 'data:text/javascript;charset=utf-8,' + escape( source );
-    self.parentNode.insertBefore( script, self );
-  }
-
   // 支持两个方法.
   // rTemplate.compile( templateString ); // return {Function}
   // rTemplate.render( templateString, data ); // return {String}
-  rTemplate.compile = function( source ) {
+  rTemplate.compile = function( source, id ) {
+    var fn;
+    if ( this.cache && (fn = this.cache[id] || this.cache[source] ) ) return fn;
     var tmpl = parseTemplate( source );
-    var fn = this.cache[ source ];
-    if ( fn ) return fn;
-    var render;
-    try {
-      render = new Function( 'context', 'utils', tmpl );
-    }
-    catch(e) {
-      window.error = e;
-      throw e;
-    }
+    var render = new Function( 'context', 'utils', tmpl );
     fn = function( data ) {
       return render( data, rTemplate.utils );
     };
-    return this.cache[ source ] = fn;
+    return id ? this.cache[id] = fn : this.cache[source] = fn;
   };
 
-  rTemplate.render = function( source, data ) {
-    var tmpl = this.compile( source );
+  rTemplate.render = function( source, data, id ) {
+    var tmpl = this.compile( source, id );
     return tmpl( data );
   };
 
