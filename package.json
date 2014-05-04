@@ -1,0 +1,24 @@
+{
+  "name": "rtemplate.js",
+  "description": "JavaScript 模板引擎",
+  "author": "redky@qq.com",
+  "version": "0.2.0",
+  "keywords": [ "JavaScript", "Template" ],
+  "homepage": "http://github.com/zhanhongtao/rTemplate",
+  "bugs": {
+    "url": "http://github.com/zhanhongtao/rTemplate/issues",
+    "email": "redky@qq.com"
+  },
+  "license": {
+    "license": "MIT"
+  },
+  "main": "./rTemplate.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zhanhongtao/rTemplate.js"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-uglify": "~0.3.0"
+  }
+}

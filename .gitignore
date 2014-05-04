@@ -1,5 +1,6 @@
 
 demo
 test
-
+node_modules
+*.map
 
