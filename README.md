@@ -1,7 +1,17 @@
-# RT
+# rt.js
 
-Compile 参考 Mustache 和 underscore.js 的 template 函数. 
-扫描字符代码来自 Mustache.
+一款基于 JavaScript 语法的模板引擎.
+
+
+## 快速上手.
+
+1. 引入 rt.js 文件.
+2. 使用 rt.render( template, data ); 生成 HTML 字符串.
+
+```
+var template = '<%= t %>'
+var html = rt.render( template, 'template data' );
+```
 
 ## 特性:
 * 支持注释
@@ -27,6 +37,38 @@ Compile 参考 Mustache 和 underscore.js 的 template 函数.
 2. 在 template 中只写符合模板的注释 - 不写 html/css/javascript 注释.
 
 
+## 实例
+
+### 使用 rt.render 生成 html 字符串.
+
+```
+var template = '<%= t %>'
+var html = rt.render( template, 'template data' );
+```
+
+### 使用 rt.compile 生成模板函数.
+```
+// html:
+<script type="text" id="tmpl">
+  <ul>
+  <% for( var i = 0, l = it.length; i < l; ++i ) { %>
+    <li><%= it[i] %></li>
+  <%}%>
+  <ul>
+</script>
+
+// JavaScript:
+var template = document.getElementById( 'tmpl' );
+var render = rt.compile( template, 'tmpl'/* 可选 id, 建议添加 */ );
+var html = render( [ 'github', 'yahoo', 'google'] );
+```
+
+[更多(more)](http://zhanhongtao.github.io/blog/rt)
+
+
 ### 其它
+compile 参考 Mustache 和 underscore.js 的 template 函数. 
+扫描字符代码来自 Mustache.
 Mustach.js 的 compile -> [Esprima](http://esprima.org/)
+
 
