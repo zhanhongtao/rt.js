@@ -4,9 +4,9 @@
   "author": "redky@qq.com",
   "version": "0.3.0",
   "keywords": [ "JavaScript", "Template" ],
-  "homepage": "http://github.com/zhanhongtao/rTemplate",
+  "homepage": "https://github.com/zhanhongtao/rt.js",
   "bugs": {
-    "url": "http://github.com/zhanhongtao/rTemplate/issues",
+    "url": "https://github.com/zhanhongtao/rt.js/issues",
     "email": "redky@qq.com"
   },
   "license": {
@@ -15,7 +15,7 @@
   "main": "./rt.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/zhanhongtao/rTemplate.js"
+    "url": "https://github.com/zhanhongtao/rt.js"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
