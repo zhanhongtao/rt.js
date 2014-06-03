@@ -14,11 +14,11 @@ module.exports = function( grunt ) {
       },
       target: {
         options: {
-          sourceMap: true,
+          sourceMap: false,
           sourceMapName: './<%= pkg.name %>.map'
         },
         files: {
-          'rTemplate.<%= pkg.version %>.min.js': ['<%= pkg.main %>']
+          'rt.<%= pkg.version %>.min.js': ['<%= pkg.main %>']
         }
       }
     },

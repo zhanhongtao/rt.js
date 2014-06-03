@@ -1,8 +1,8 @@
 {
-  "name": "rtemplate.js",
+  "name": "rt.js",
   "description": "JavaScript 模板引擎",
   "author": "redky@qq.com",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "keywords": [ "JavaScript", "Template" ],
   "homepage": "http://github.com/zhanhongtao/rTemplate",
   "bugs": {
@@ -12,7 +12,7 @@
   "license": {
     "license": "MIT"
   },
-  "main": "./rTemplate.js",
+  "main": "./rt.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/zhanhongtao/rTemplate.js"

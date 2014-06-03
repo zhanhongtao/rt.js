@@ -7,22 +7,71 @@
     if (typeof define === "function" && define.amd) {
       define(template); // AMD
     } else {
-      root.rTemplate = template;
+      root.rt = template;
     }
   }
-}(this, function ( rTemplate ) {
+}(this, function ( rt ) {
   'use strict';
-  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
-  // See https://github.com/janl/mustache.js/issues/189
-  var RegExp_test = RegExp.prototype.test;
-  function testRegExp(re, string) {
-    return RegExp_test.call(re, string);
+
+  // Scanner 对象 - 来自 Mustache.js
+  /**
+   * A simple string scanner that is used by the template parser to find
+   * tokens in template strings.
+   */
+  function Scanner(string) {
+    this.string = string;
+    this.tail = string;
+    this.pos = 0;
   }
 
-  var nonSpaceRe = /\S/;
-  function isWhitespace(string) {
-    return !testRegExp(nonSpaceRe, string);
-  }
+  /**
+   * Returns `true` if the tail is empty (end of string).
+   */
+  Scanner.prototype.eos = function () {
+    return this.tail === "";
+  };
+
+  /**
+   * Tries to match the given regular expression at the current position.
+   * Returns the matched text if it can match, the empty string otherwise.
+   */
+  Scanner.prototype.scan = function (re) {
+    var match = this.tail.match(re);
+
+    if (match && match.index === 0) {
+      var string = match[0];
+      this.tail = this.tail.substring(string.length);
+      this.pos += string.length;
+      return string;
+    }
+
+    return "";
+  };
+
+  /**
+   * Skips all text until the given regular expression can be matched. Returns
+   * the skipped string, which is the entire tail if no match can be made.
+   */
+  Scanner.prototype.scanUntil = function (re) {
+    var index = this.tail.search(re), match;
+
+    switch (index) {
+      case -1:
+      match = this.tail;
+      this.tail = "";
+      break;
+      case 0:
+      match = "";
+      break;
+      default:
+      match = this.tail.substring(0, index);
+      this.tail = this.tail.substring(index);
+    }
+
+    this.pos += match.length;
+
+    return match;
+  };
 
   var Object_toString = Object.prototype.toString;
   var isArray = Array.isArray || function (object) {
@@ -31,27 +80,6 @@
 
   function escapeRegExp(string) {
     return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
-  }
-
-  var entityMap = {
-    // @NOTE: 防止 html 实体, 以及其它进制表示.
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': '&quot;',
-    // @NOTE: &apos; 不是标准 HTML 标签.
-    // 使用 16 进制表示.
-    "'": '&#x27;',
-    // @NOTE: / 字符是 html 标签结束字符.
-    // 需要编码, 防止把数据写在 html 标签属性部分.
-    "/": '&#x2F;',
-    "\\": '&#x5c;',
-    '%': '&#x0025;'
-  };
-  function escapeHtml(string) {
-    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
-      return entityMap[key];
-    });
   }
 
   // 防止在拼接 JavaScript Code 时出现异常.
@@ -78,12 +106,33 @@
     ];
   }
 
+  var entityMap = {
+    // @NOTE: 防止 html 实体, 以及其它进制表示.
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    // @NOTE: &apos; 不是标准 HTML 标签.
+    // 使用 16 进制表示.
+    "'": '&#x27;',
+    // @NOTE: / 字符是 html 标签结束字符.
+    // 需要编码, 防止把数据写在 html 标签属性部分.
+    "/": '&#x2F;',
+    "\\": '&#x5c;',
+    '%': '&#x0025;'
+  };
+  function escapeHtml(string) {
+    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
+      return entityMap[key];
+    });
+  }
+
   var whiteRe = /\s*/;
   var spaceRe = /\s+/;
   var changeTagRe = /\s*@/;
   var tagRe = /#|&|=|@|>|%/;
   function parseTemplate(template, tags) {
-    tags = tags || rTemplate.tags;
+    tags = tags || rt.tags;
     template = template || '';
 
     // tags 为 array, 长度为 2
@@ -97,7 +146,7 @@
     // 初始化扫描器
     var scanner = new Scanner(template);
     var tokens = [];       // Buffer to hold the tokens
-    var start, type, value, chr, token;
+    var start, type, value, token;
     while (!scanner.eos()) {
       start = scanner.pos;
 
@@ -152,32 +201,32 @@
   // 即: compile 子模板, 生成字符串并放到父模板中.
   // @NOTE: compile 生成函数体.
   function include( string ) {
-    return ';(function() { ' + parseTemplate(string) + '})();';
+    return '(function() { ' + parseTemplate(string) + '})();';
   }
 
   // 支持重写 include 方法.
   // include 本身的特点, 因此使用 supportInclude 函数生成.
   // 输出 function( tag ), 输出为模板字符串.
   // tag 是父模板中调用的 keyword.
-  rTemplate.supportInclude = function( fn ) {
+  rt.supportInclude = function( fn ) {
     this.include = function( tag ) {
       return include( fn(tag) );
     };
   };
 
   // 默认使用 $( tag ).innerHTML.
-  rTemplate.supportInclude(function( tag ) {
+  rt.supportInclude(function( tag ) {
     var dom, string = '';
     try {
       dom = document.getElementById( tag );
       string =  dom ? dom.innerHTML : '';
     }
     catch(e){}
-    return string;
+    return string ? string : '';
   });
 
   // 把模板字符拼接成 JavaScript 函数体.
-  function combineTokens(tokens ) {
+  function combineTokens( tokens ) {
     var code = "var output = '';";
     for ( var i = 0, l = tokens.length; i < l; i++ ) {
       var token = tokens[i];
@@ -194,10 +243,10 @@
           code += value + '\n';
           break;
         case '>':
-          code += "output+=" + rTemplate.include( value );
+          code += "output+=" + rt.include( value );
           break;
         case '=':
-          code += "output+=utils.escape(" + (value) + ")\n";
+          code += "output+=rt.escape(" + (value) + ")\n";
           break;
         case '&':
           code += 'output+=' + (value) + ';\n';
@@ -211,98 +260,31 @@
       }
     }
     code += "return output;";
-    console.log( code );
     return code;
   }
 
-  // Scanner 对象 - 来自 Mustache.js
-  /**
-   * A simple string scanner that is used by the template parser to find
-   * tokens in template strings.
-   */
-  function Scanner(string) {
-    this.string = string;
-    this.tail = string;
-    this.pos = 0;
-  }
+  rt.tags = [ "<%", "%>" ];
+  rt.cache = {};
 
-  /**
-   * Returns `true` if the tail is empty (end of string).
-   */
-  Scanner.prototype.eos = function () {
-    return this.tail === "";
-  };
-
-  /**
-   * Tries to match the given regular expression at the current position.
-   * Returns the matched text if it can match, the empty string otherwise.
-   */
-  Scanner.prototype.scan = function (re) {
-    var match = this.tail.match(re);
-
-    if (match && match.index === 0) {
-      var string = match[0];
-      this.tail = this.tail.substring(string.length);
-      this.pos += string.length;
-      return string;
-    }
-
-    return "";
-  };
-
-  /**
-   * Skips all text until the given regular expression can be matched. Returns
-   * the skipped string, which is the entire tail if no match can be made.
-   */
-  Scanner.prototype.scanUntil = function (re) {
-    var index = this.tail.search(re), match;
-
-    switch (index) {
-    case -1:
-      match = this.tail;
-      this.tail = "";
-      break;
-    case 0:
-      match = "";
-      break;
-    default:
-      match = this.tail.substring(0, index);
-      this.tail = this.tail.substring(index);
-    }
-
-    this.pos += match.length;
-
-    return match;
-  };
-
-  rTemplate.version = '0.2';
-  rTemplate.tags = [ "<%", "%>" ];
-  rTemplate.cache = {};
-
-  // 支持扩展函数.
-  rTemplate.utils = {
-    escape: escapeHtml,
-    include: include
-  };
+  rt.escape = escapeHtml;
 
   // 支持两个方法.
-  // rTemplate.compile( templateString ); // return {Function}
-  // rTemplate.render( templateString, data ); // return {String}
-  rTemplate.compile = function( source, id ) {
+  // rt.compile( templateString ); // return {Function}
+  // rt.render( templateString, data ); // return {String}
+  rt.compile = function( source, id ) {
     var fn;
-    if ( this.cache && (fn = this.cache[id] || this.cache[source] ) ) return fn;
+    if ( fn = this.cache[id] || this.cache[source] ) return fn;
     var tmpl = parseTemplate( source );
-    var render = new Function( 'context', 'utils', tmpl );
+    var render = new Function( 'it', tmpl );
     fn = function( data ) {
-      return render( data, rTemplate.utils );
+      return render.call( rt, data );
     };
     return id ? this.cache[id] = fn : this.cache[source] = fn;
   };
 
-  rTemplate.render = function( source, data, id ) {
+  rt.render = function( source, data, id ) {
     var tmpl = this.compile( source, id );
     return tmpl( data );
   };
 
 }));
-

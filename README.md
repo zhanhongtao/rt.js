@@ -3,27 +3,23 @@
 Compile 参考 Mustache 和 underscore.js 的 template 函数. 
 扫描字符代码来自 Mustache.
 
-
-## 特点:
+## 特性:
 * 支持注释
 * 重定义 tag - [[, ]]
 * 支持调试 - chrome develop tool 自动支持.
-* 支持在模板中书写 JavaScript 代码.
+* 在模板中书写 JavaScript 代码.
 * 内置转义文本字符, 防止 xss; 同时可扩展转义字符.
 * 支持子模板.
-
 
 ## 语法说明
 * 默认 tag: `<% %>`
 * 注释: `<%# %>`
 * 代码: `<% for( var i = 0, n = array.length; i < n; i++ ) {} %>`
-* 转义输出: `<%= context.property %>`
-* 不转义输出: `<%& context.property %>`
+* 转义输出: `<%= it.property %>`
+* 不转义输出: `<%& it.property %>`
 * 原样输出: `<%% text %>`
 * 切换 tag: `<%@ {{ }} @%>`
-* 子模板: `<%> tag %>` -> 用户可自定义 rTemplate.supportInclude 函数.( @tag, @return string )
-* 支持扩展函数: 把方法扩展到 `rTemplate.utils` 对象上, 内置 `include`, `escape` 方法. 然后在模板中可直接使用 `utils.methodName( argument );`
-
+* 子模板: `<%> tag %>` -> 用户可自定义 rt.supportInclude 函数.( @tag, @return string )
 
 ## 补充说明
 0. 在 & 或者 = 中, 使用 JavaScript 语句时, 不能添加 ; 号.
