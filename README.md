@@ -9,7 +9,7 @@
 2. 使用 rt.render( template, data ); 生成 HTML 字符串.
 
 ```
-var template = '<%= t %>'
+var template = '<%= it %>'
 var html = rt.render( template, 'template data' );
 ```
 
@@ -42,7 +42,7 @@ var html = rt.render( template, 'template data' );
 ### 使用 rt.render 生成 html 字符串.
 
 ```
-var template = '<%= t %>'
+var template = '<%= it %>'
 var html = rt.render( template, 'template data' );
 ```
 
