@@ -130,7 +130,7 @@
   var whiteRe = /\s*/;
   var spaceRe = /\s+/;
   var changeTagRe = /\s*@/;
-  var tagRe = /#|&|=|@|>|%/;
+  var tagRe = /#|&|=|@|>/;
   function parseTemplate(template, tags) {
     tags = tags || rt.tags;
     template = template || '';
@@ -167,7 +167,6 @@
       // & -> 转义
       // = -> 输出
       // # -> 注释
-      // % -> 原样输出
       type = scanner.scan(tagRe) || 'name';
 
       // 跳过空白字符.

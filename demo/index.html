@@ -35,7 +35,8 @@
 
 <script type="text" id="tmpl-js">
   <%# 支持使用 JavaScript 内置方法 %>
-  <%= it.toUpperCase() + '_' + $.now() %>
+  <%= it.toUpperCase() + '_' + $.now() 
+  %>
 </script>
 
 <script type="text" id="tmpl-array">
@@ -72,7 +73,9 @@
 
 <script type="text" id="tmpl-usertag">
   {{#支持用户自定义 tag}}
-  {{=it}}
+  {{=it}}<br />
+  {{# 或在模板中直接转回去 }}{{@<% %>@}}
+  <%= it %>
 </script>
 
 <script src="../rt.js"></script>
@@ -137,9 +140,6 @@ var cases = [
     data: 'rt javascript template',
     before: function() {
       rt.tags = [ '{{', '}}' ];
-    },
-    after: function() {
-      rt.tags = [ '<%', '%>' ];
     }
   }
 ];
@@ -167,7 +167,9 @@ $( '.demo' ).on( 'input', 'textarea', function(e) {
   try {
     result.html( rt.render(tmpl, data) );
   }
-  catch(e) {}
+  catch(e) {
+    console.log( e );
+  }
 });
 
 </script>

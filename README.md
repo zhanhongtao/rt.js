@@ -23,12 +23,11 @@ var html = rt.render( template, 'template data' );
 
 ## 语法说明
 * 默认 tag: `<% %>`
+* 切换 tag: `<%@ {{ }} @%>`
 * 注释: `<%# %>`
 * 代码: `<% for( var i = 0, n = array.length; i < n; i++ ) {} %>`
 * 转义输出: `<%= it.property %>`
 * 不转义输出: `<%& it.property %>`
-* 原样输出: `<%% text %>`
-* 切换 tag: `<%@ {{ }} @%>`
 * 子模板: `<%> tag %>` -> 用户可自定义 rt.supportInclude 函数.( @tag, @return string )
 
 ## 补充说明
