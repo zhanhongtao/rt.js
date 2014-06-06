@@ -231,12 +231,14 @@
       var token = tokens[i];
       if ( !token ) continue;
       var value = token[1];
-      var textReg = /text|\^|%/;
+      var textReg = /text|\^/;
       if ( textReg.test(token[0]) ) {
-        value = value.replace( escaper, function( match ) {
+        // \s -> [ \f\n\r\t\v]
+        value = value.replace(/^\s*|\s*$/, '').replace( escaper, function( match ) {
           return '\\' + escapes[match];
         });
       }
+      if ( value === '' ) continue;
       switch( token[0] ) {
         case 'name':
           code += value + '\n';
