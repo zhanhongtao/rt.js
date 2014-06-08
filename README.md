@@ -36,16 +36,6 @@ var html = rt.render( template, 'I\' am rt.js!' );
 
 ## 补充说明
 * 连续的 JavaScript 脚本放在一个 `<%` 脚本 `%>` 中间. 
-
-不推荐写 - 这种写法可能会出现异常 - 在 switch-case 语法中.
-```
-  <% for ( var i = 0, l = it.length; i < l; ++i ) { %>
-    <% var item = it[i]; %>
-    // .....
-  <% } %>
-```
-
-推荐写成:
 ```
   <% for ( var i = 0, l = it.length; i < l; ++i ) {
     var item = it[i]; %>
