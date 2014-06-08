@@ -63,7 +63,9 @@
 
 <script type="text" id="tmpl-usertag">
 {{#支持用户自定义 tag}}
-{{=it}}
+{{=it}}<br />
+{{# 或在模板中直接转回去 }}{{@<% %>@}}
+<%= it %>
 </script>
 <script src="jquery-1.11.0.min.js"></script>
 <script src="../rt.js"></script>

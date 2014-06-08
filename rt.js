@@ -104,31 +104,10 @@
     ];
   }
 
-  var entityMap = {
-    // @NOTE: 防止 html 实体, 以及其它进制表示.
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': '&quot;',
-    // @NOTE: &apos; 不是标准 HTML 标签.
-    // 使用 16 进制表示.
-    "'": '&#x27;',
-    // @NOTE: / 字符是 html 标签结束字符.
-    // 需要编码, 防止把数据写在 html 标签属性部分.
-    "/": '&#x2F;',
-    "\\": '&#x5c;',
-    '%': '&#x0025;'
-  };
-  function escapeHtml(string) {
-    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
-      return entityMap[key];
-    });
-  }
-
   var whiteRe = /\s*/;
   var spaceRe = /\s+/;
   var changeTagRe = /\s*@/;
-  var tagRe = /#|&|=|@|>|%/;
+  var tagRe = /#|&|=|@|>/;
   function parseTemplate(template, tags) {
     tags = tags || rt.tags;
     template = template || '';
@@ -165,7 +144,6 @@
       // & -> 转义
       // = -> 输出
       // # -> 注释
-      // % -> 原样输出
       type = scanner.scan(tagRe) || 'name';
 
       // 跳过空白字符.
@@ -209,12 +187,14 @@
       var token = tokens[i];
       if ( !token ) continue;
       var value = token[1];
-      var textReg = /text|\^|%/;
+      var textReg = /text|\^/;
       if ( textReg.test(token[0]) ) {
-        value = value.replace( escaper, function( match ) {
+        // \s -> [ \f\n\r\t\v]
+        value = value.replace(/^\s*|\s*$/, '').replace( escaper, function( match ) {
           return '\\' + escapes[match];
         });
       }
+      if ( value === '' ) continue;
       switch( token[0] ) {
         case 'name':
           code += value + '\n';
@@ -244,14 +224,35 @@
   rt.tags = [ "<%", "%>" ];
   rt.cache = {};
   rt.include = include;
+
+  var entityMap = {
+    // @NOTE: 防止 html 实体, 以及其它进制表示.
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    // @NOTE: &apos; 不是标准 HTML 标签.
+    // 使用 16 进制表示.
+    "'": '&#x27;',
+    // @NOTE: / 字符是 html 标签结束字符.
+    // 需要编码, 防止把数据写在 html 标签属性部分.
+    "/": '&#x2F;',
+    "\\": '&#x5c;',
+    '%': '&#x0025;'
+  };
+  function escapeHtml(string) {
+    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
+      return entityMap[key];
+    });
+  }
   rt.escape = function( string ) {
     return ( helper.escape || escapeHtml )( string );
-  }; 
-  
+  };
+
   rt.helper = function( key, method ) {
     helper[ key ] = method;
   };
-  
+
   rt.helper( 'escape', escapeHtml );
   rt.helper( 'include', function( tag ) {
     var dom, string = '';
