@@ -20,6 +20,7 @@ var html = rt.render( template, 'template data' );
 * 在模板中书写 JavaScript 代码.
 * 内置转义文本字符, 防止 xss; 同时可扩展转义字符.
 * 支持子模板.
+* 支持模板中扩展方法. `rt.helper( 'name', method );`
 
 ## 语法说明
 * 默认 tag: `<% %>`
@@ -28,12 +29,12 @@ var html = rt.render( template, 'template data' );
 * 代码: `<% for( var i = 0, n = array.length; i < n; i++ ) {} %>`
 * 转义输出: `<%= it.property %>`
 * 不转义输出: `<%& it.property %>`
-* 子模板: `<%> tag %>` -> 用户可自定义 rt.supportInclude 函数.( @tag, @return string )
+* 子模板: `<%> tag %>` 默认支持浏览器端 dom#id, 返回 dom.innerHTML. 可使用 rt.helper 注册 'include' 方法重写它.
 
 ## 补充说明
 0. 在 & 或者 = 中, 使用 JavaScript 语句时, 不能添加 ; 号.
 1. 只在 <% %> 中写语句. 而在 & 和 = 中写变量, 属性或表达式, object.property, Math.random()[不加分号], <%= index + 1 %> 等表达式.
-2. 在 template 中只写符合模板的注释 - 不写 html/css/javascript 注释.
+2. 在 template 中只写符合模板的注释 - 不建议写 html/css/javascript 注释.
 
 
 ## 实例
@@ -66,8 +67,8 @@ var html = render( [ 'github', 'yahoo', 'google'] );
 
 
 ### 其它
-compile 参考 Mustache 和 underscore.js 的 template 函数. 
-扫描字符代码来自 Mustache.
-Mustach.js 的 compile -> [Esprima](http://esprima.org/)
+* compile 参考 Mustache 和 underscore.js 的 template 函数. 
+* 扫描字符代码来自 Mustache.
+* Mustach.js 的 compile -> [Esprima](http://esprima.org/)
 
 
