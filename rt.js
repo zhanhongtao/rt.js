@@ -190,27 +190,27 @@
       var textReg = /text|\^/;
       if ( textReg.test(token[0]) ) {
         // \s -> [ \f\n\r\t\v]
-        value = value.replace(/^\s*|\s*$/, '').replace( escaper, function( match ) {
+        // .replace(/^\s*|\s*$/, '')
+        value = value.replace( escaper, function( match ) {
           return '\\' + escapes[match];
         });
       }
       if ( value === '' ) continue;
       switch( token[0] ) {
         case 'name':
-          code += value + '\n';
+          code += '\n' + value + '\n';
           break;
         case '>':
-          code += "output+=" + include( helper.include(value) );
+          code += "output+=" + include( helper.include(value) ) + ';';
           break;
         case '=':
-          code += "output+=rt.escape(" + (value) + ")\n";
+          code += "output+=rt.escape(" + (value) + ");";
           break;
         case '&':
-          code += 'output+=' + (value) + ';\n';
+          code += 'output+=' + (value) + ';';
           break;
-        case '%':
         case 'text':
-          code += "output+='" + (value) + "';\n";
+          code += "output+='" + (value) + "';";
           break;
         default:
           break;
@@ -224,6 +224,7 @@
   rt.tags = [ "<%", "%>" ];
   rt.cache = {};
   rt.include = include;
+  rt.debug = 0;
 
   var entityMap = {
     // @NOTE: 防止 html 实体, 以及其它进制表示.
@@ -236,7 +237,7 @@
     "'": '&#x27;',
     // @NOTE: / 字符是 html 标签结束字符.
     // 需要编码, 防止把数据写在 html 标签属性部分.
-    "/": '&#x2F;',
+    "/": '&#x2f;',
     "\\": '&#x5c;',
     '%': '&#x0025;'
   };
@@ -260,15 +261,20 @@
       dom = document.getElementById( tag );
       string =  dom ? dom.innerHTML : '';
     }
-    catch(e){}
+    catch(e){ rt.debug && console.log( e ); }
     return string;
   });
 
   rt.compile = function( source, id ) {
     var fn = this.cache[id] || this.cache[source];
     if ( fn ) return fn;
-    var tmpl = parseTemplate( source );
-    var render = new Function( 'it', tmpl );
+    var tmpl = parseTemplate( source ), render = function() {};
+    try { render = new Function( 'it', tmpl ); }
+    catch(e) { 
+      if ( rt.debug ) {
+        console.log( tmpl );
+      }
+    }
     return this.cache[ id ? id : source ] = render;
   };
 
