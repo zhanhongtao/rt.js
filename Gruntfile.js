@@ -10,7 +10,7 @@ module.exports = function( grunt ) {
           drop_debugger: true,
           warnings: true
         },
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */'
+        banner: '/*!\n  <%= pkg.name %>\n  @homepage:<%= pkg.homepage %>\n  @update: <%= grunt.template.today("yyyy-mm-dd")%>\n*/\n'
       },
       target: {
         options: {

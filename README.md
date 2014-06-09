@@ -62,7 +62,7 @@ var html = rt.render( template, 'I\' am rt.js!' );
 
 ```
 var template = '<%= it %>'
-var html = rt.render( template, 'template data' );
+var html = rt.render( template, 'template string data' );
 ```
 
 ### 使用 rt.compile 生成模板函数.
@@ -77,9 +77,37 @@ var html = rt.render( template, 'template data' );
 </script>
 
 // JavaScript:
-var template = document.getElementById( 'tmpl' );
+var template = document.getElementById( 'tmpl' ).innerHTML;
 var render = rt.compile( template, 'tmpl'/* 可选 id, 建议添加 */ );
 var html = render( [ 'github', 'yahoo', 'google'] );
+```
+
+### 使用子模板.
+```
+<script type="text" id="tmpl-subtmpl">
+  <% $.each( it, function( index, item ) { %>
+    <%> tmpl-sub %>
+  <% }); %>
+</script>
+
+<!-- 
+  rt.js 中内置 helper 变量. 
+  可使用 rt.helper 注册的方法.
+  helper.name( value );
+-->
+<script type="text" id="tmpl-sub">
+<li><%= index %>:  <%= helper.prefix(item) %></li>
+</script>
+
+<script>
+  // 注册 prefix 方法.
+  rt.helper( 'prefix', function( val ) {
+    return '@' + val;
+  });
+  // 渲染.
+  var template = $( '#tmpl-subtmpl' ).html();
+  var html = rt.render( template, { 's': 'sogou.com' } ); 
+</script>
 ```
 
 [更多(more)](http://zhanhongtao.github.io/blog/rt)

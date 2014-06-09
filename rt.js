@@ -176,21 +176,19 @@
   // 支持子模板.
   // 即: compile 子模板, 生成字符串并放到父模板中.
   // @NOTE: compile 生成函数体.
-  function include( string ) {
-    return '(function() { ' + parseTemplate(string) + '})();';
+  function include( string, helper ) {
+    return '(function() { ' + parseTemplate(string) + '}).call(' + helper + ');';
   }
 
   // 把模板字符拼接成 JavaScript 函数体.
   function combineTokens( tokens ) {
-    var code = "var output = '';";
+    var code = "var output = '', helper = this;";
     for ( var i = 0, l = tokens.length; i < l; i++ ) {
       var token = tokens[i];
       if ( !token ) continue;
       var value = token[1];
       var textReg = /text|\^/;
       if ( textReg.test(token[0]) ) {
-        // \s -> [ \f\n\r\t\v]
-        // .replace(/^\s*|\s*$/, '')
         value = value.replace( escaper, function( match ) {
           return '\\' + escapes[match];
         });
@@ -201,16 +199,16 @@
           code += '\n' + value + '\n';
           break;
         case '>':
-          code += "output+=" + include( helper.include(value) ) + ';';
+          code += "output += " + include( helper.include(value), 'helper' ) + ';';
           break;
         case '=':
-          code += "output+=rt.escape(" + (value) + ");";
+          code += "output += helper.escape(" + (value) + ");";
           break;
         case '&':
-          code += 'output+=' + (value) + ';';
+          code += 'output += ' + (value) + ';';
           break;
         case 'text':
-          code += "output+='" + (value) + "';";
+          code += "output += '" + (value) + "';";
           break;
         default:
           break;
@@ -220,10 +218,8 @@
     return code;
   }
 
-  var helper = {};
   rt.tags = [ "<%", "%>" ];
   rt.cache = {};
-  rt.include = include;
   rt.debug = 0;
 
   var entityMap = {
@@ -242,18 +238,15 @@
     '%': '&#x0025;'
   };
   function escapeHtml(string) {
-    return ('' + string).replace(/[&<>"'\/\\%]/g, function( key ) {
+    return String(string).replace(/[&<>"'\/\\%]/g, function( key ) {
       return entityMap[key];
     });
   }
-  rt.escape = function( string ) {
-    return ( helper.escape || escapeHtml )( string );
-  };
 
+  var helper = {};
   rt.helper = function( key, method ) {
-    helper[ key ] = method;
+    helper[ key ] = typeof method === 'function' ? method: function() {};
   };
-
   rt.helper( 'escape', escapeHtml );
   rt.helper( 'include', function( tag ) {
     var dom, string = '';
@@ -261,7 +254,11 @@
       dom = document.getElementById( tag );
       string =  dom ? dom.innerHTML : '';
     }
-    catch(e){ rt.debug && console.log( e ); }
+    catch(e){ 
+      if ( rt.debug ) {
+        throw e; 
+      }
+    }
     return string;
   });
 
@@ -270,9 +267,9 @@
     if ( fn ) return fn;
     var tmpl = parseTemplate( source ), render = function() {};
     try { render = new Function( 'it', tmpl ); }
-    catch(e) { 
+    catch(e) {
       if ( rt.debug ) {
-        console.log( tmpl );
+        throw e;
       }
     }
     return this.cache[ id ? id : source ] = render;
