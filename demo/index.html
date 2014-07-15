@@ -5,7 +5,8 @@
   <title>rt</title>
   <style>
     .demo { overflow: hidden; margin-top: 2px; }
-    .demo textarea { float: left; width: 32%; min-height: 70px;padding: 0; margin-right: 5px;}
+    .demo .data,
+    .demo .tmpl { float: left; width: 32%; min-height: 70px;padding: 0; margin-right: 5px;}
     .demo div { overflow: hidden; background-color: #eea; min-height: 70px;}
   </style>
 </head>
@@ -87,6 +88,16 @@
     <%   break;
     default: break;
   } %>
+</script>
+
+<script type="text" id="tmpl-textarea">
+<%#
+  textarea/input
+%> 
+<input value="<%= it %>" />
+<input value="<%& it %>" />
+<textarea><%= it %></textarea>
+<textarea><%& it %></textarea>
 </script>
 
 <script src="jquery-1.11.0.min.js"></script>
@@ -194,6 +205,10 @@ rt.helper( 'prefix', function( string ) {
         script: '\'\"\\',
         method: 'alert'
       }
+    },
+    {
+      tmpl: '#tmpl-textarea',
+      data: '<b>bold</b>&lt;b&gt;bold&lt;/b&gt;'
     }
   ];
 }
