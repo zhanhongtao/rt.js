@@ -225,29 +225,6 @@
   rt.tags = [ "<%", "%>" ];
   rt.cache = {};
   rt.debug = 0;
-
-  function encode( code, base, left, right, length, hijack ) {
-    if ( typeof code !== 'string' ) return '';
-    base = +base || 16;
-    left = typeof left === 'string' ? left : '&#x';
-    right = typeof right == 'string' ? right : ';';
-    typeof length === 'undefined' && ( length = 3 );
-    hijack = typeof hijack === 'function' ? hijack : function() { return; };
-    var ret = '', padding = 0;
-    for ( var i = 0, l = code.length, char; i < l; i++ ) {
-      char = hijack( code.charAt(i) );
-      if ( typeof char !== 'string' ) {
-        char = ( code.charCodeAt(i) ).toString( base );
-        padding = length - String(char).length + 1;
-        if ( padding < 1 ) padding = 0;
-        char = left + (new Array(padding)).join('0') + char + right;
-      }
-      ret += char;
-      padding = 0;
-    }
-    return ret;
-  }
-
   var entityMap = {
     // @NOTE: 防止 html 实体, 以及其它进制表示.
     "&": "&amp;",
@@ -288,7 +265,10 @@
     return string;
   });
   rt.helper( 'unicode', function( string ) {
-    return encode( string, 16, '\\u', '', 4 );
+    return String(string).replace(/['"\\]/g, function(key) {
+      var b = '' + key.charCodeAt(0).toString(16);
+      return '\\u' + (new Array(5 - b.length)).join('0') + b;
+    });
   });
 
   rt.compile = function( source, id ) {
