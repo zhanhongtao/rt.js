@@ -2,7 +2,7 @@
   "name": "rt.js",
   "description": "JavaScript 模板引擎",
   "author": "redky@qq.com",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "keywords": [ "JavaScript", "Template" ],
   "homepage": "https://github.com/zhanhongtao/rt.js",
   "bugs": {

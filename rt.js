@@ -281,7 +281,9 @@
         throw e;
       }
     }
-    return this.cache[ id ? id : source ] = render;
+    return this.cache[ id ? id : source ] = function(data) {
+      render.call(helper, data);
+    };
   };
 
   rt.render = function( source, data, id ) {
