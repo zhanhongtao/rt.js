@@ -282,7 +282,7 @@
       }
     }
     return this.cache[ id ? id : source ] = function(data) {
-      render.call(helper, data);
+      return render.call(helper, data);
     };
   };
 
