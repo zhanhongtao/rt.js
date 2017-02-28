@@ -2,12 +2,15 @@
   "name": "rt.js",
   "description": "JavaScript 模板引擎",
   "author": "redky@qq.com",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "keywords": [ "JavaScript", "Template" ],
   "homepage": "https://github.com/zhanhongtao/rt.js",
   "bugs": {
     "url": "https://github.com/zhanhongtao/rt.js/issues",
     "email": "redky@qq.com"
+  },
+  "scripts": {
+    "build": "grunt"
   },
   "license": {
     "license": "MIT"

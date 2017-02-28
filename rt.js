@@ -272,6 +272,7 @@
   });
 
   rt.compile = function( source, id ) {
+    if (typeof source !== 'string') throw 'Source Error';
     var fn = this.cache[id] || this.cache[source];
     if ( fn ) return fn;
     var tmpl = parseTemplate( source ), render = function() {};
